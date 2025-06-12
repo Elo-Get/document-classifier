@@ -1,0 +1,12 @@
+scikit-learn
+pdf2image
+jupyter
+pandas
+matplotlib
+opencv-python
+pytesseract
+pyspellchecker
+nltk
+skl2onnx 
+onnx 
+onnxruntime
