@@ -1,6 +1,7 @@
 FROM python:3.11-slim
-# Installer les dépendances système et locales
-RUN apt-get update && apt-get install -y \
+
+# Installer les paquets nécessaires
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     poppler-utils \
     libglib2.0-0 \
@@ -9,17 +10,18 @@ RUN apt-get update && apt-get install -y \
     libxrender-dev \
     tesseract-ocr \
     locales \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Générer et configurer la locale en_US.UTF-8
-RUN locale-gen en_US.UTF-8 && \
+# Configurer la locale en_US.UTF-8
+RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+    locale-gen en_US.UTF-8 && \
     update-locale LANG=en_US.UTF-8
 
-# Définir les variables d'environnement pour la locale
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8
 
-# Installer les packages python
+# Copier et installer requirements Python
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
