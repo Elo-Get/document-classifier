@@ -70,7 +70,7 @@ Le projet contient une configuration **DevContainer** (Visual Studio Code + Dock
 
 1. Ouvre le projet dans VS Code
 2. Clique sur : `Reopen in Container`
-3. Attends que l’environnement se construise automatiquement
+3. Attendre que l’environnement se construise automatiquement
 
 ---
 
