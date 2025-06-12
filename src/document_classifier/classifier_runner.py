@@ -6,8 +6,8 @@ from onnxruntime import InferenceSession
 class ONNXDocumentClassifier:
     
     def __init__(self, onnx_model_path: str, tfidf_model_path: str):
-        self.tfidf = joblib.load(tfidf_model_path)
         self.session = InferenceSession(onnx_model_path)
+        self.tfidf = joblib.load(tfidf_model_path)
         self.input_name = self.session.get_inputs()[0].name
 
     def predict(self, texts: list[str]) -> Optional[list[str]]:
