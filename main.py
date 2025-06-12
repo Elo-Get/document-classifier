@@ -2,22 +2,21 @@ import os
 import time
 import shutil
 from typing import Optional
-import joblib
 
-from src.pdf_io import PDFIo
+from src.document_classifier.classifier_runner import ONNXDocumentClassifier
+from src.document_handler.pdf_io import PDFIo
 from src.text_extraction.french_text_cleaner import FrenchTextCleaner
 from src.text_extraction.ocr_text_extractor import OCRTextExtractor
 from src.trainer.document_classifier_classes import DocumentClassifierClasses
 
 import numpy as np
-from onnxruntime import InferenceSession
 
 io = PDFIo()
 text_cleaner = FrenchTextCleaner()
 text_extractor = OCRTextExtractor(lang="fra+eng")
 
 
-
+# Constants
 DEPOSIT_DIR = "deposit"
 DATA_DIR = "data"
 CATEGORIES = {
@@ -28,16 +27,15 @@ CATEGORIES = {
     4: DocumentClassifierClasses.RELEVE_DE_COMPTE_BANCAIRE.value
 }
 
+# Création des dossiers de catégories
 for folder in CATEGORIES.values():
     folder_path = os.path.join(DATA_DIR, folder)
     if not os.path.exists(folder_path):
         os.makedirs(os.path.join(DATA_DIR, folder), exist_ok=True)
 
-print("Chargement des modèles...")
-tfidf = joblib.load("modeles/tfidf.pkl")
-session = InferenceSession("modeles/clf.onnx")
-input_name = session.get_inputs()[0].name
-print("Modèles chargés.")
+# Init du runner modèle
+runner = ONNXDocumentClassifier(onnx_model_path="modeles/clf.onnx",
+                                 tfidf_model_path="modeles/tfidf.pkl")
 
 def get_next_index(category_folder : str):
     """
@@ -92,11 +90,15 @@ def predict_category(text: str) -> int:
     :return: Index de la catégorie prédite
     """
     
-    X_tfidf = tfidf.transform([text]).astype(np.float32)
-    pred_onx = session.run(None, {input_name: X_tfidf.toarray()})
-    print(f"Prédiction ONNX : {pred_onx[0][0]}")
+    predictions = runner.predict([text])
+    print(f"Prédictions obtenues : {predictions}")
+    
+    if not predictions or len(predictions) == 0:
+        print("Aucune prédiction obtenue")
+        return -1
+        
     try:
-        cat_idx = get_category_index(pred_onx[0][0])
+        cat_idx = get_category_index(predictions[0])
     except Exception as e:
         cat_idx = -1
     return cat_idx

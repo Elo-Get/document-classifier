@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+venv
+*.log
+.env
+coverage.xml
+build/
+dist/
+*.egg-info/
+.cache/
+
+# Fichiers data & cache
+data/
+cache/
+deposit/

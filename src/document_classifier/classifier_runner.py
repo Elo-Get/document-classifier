@@ -1,13 +1,25 @@
-import onnxruntime as ort
+from typing import Optional
+import joblib
 import numpy as np
+from onnxruntime import InferenceSession
 
 class ONNXDocumentClassifier:
-    def __init__(self, onnx_model_path: str):
-        self.session = ort.InferenceSession(onnx_model_path)
+    
+    def __init__(self, onnx_model_path: str, tfidf_model_path: str):
+        self.tfidf = joblib.load(tfidf_model_path)
+        self.session = InferenceSession(onnx_model_path)
         self.input_name = self.session.get_inputs()[0].name
-        self.label_name = self.session.get_outputs()[0].name
 
-    def predict(self, texts: list[str]) -> list[str]:
-        inputs = np.array(texts).reshape(-1, 1).astype(np.object_)
-        outputs = self.session.run([self.label_name], {self.input_name: inputs})
-        return outputs[0]  
+    def predict(self, texts: list[str]) -> Optional[list[str]]:
+        X_tfidf = self.tfidf.transform(texts).astype(np.float32)
+        pred_onx = self.session.run(None, {self.input_name: X_tfidf.toarray()})
+        results = []
+        
+        try:
+            for text in pred_onx:
+                results.append(text[0])
+        except Exception as e:
+            print(f"Erreur lors de la prédiction : {e}")
+            return None
+        
+        return results
