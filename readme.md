@@ -89,7 +89,7 @@ python main.py
 
 Exemple :
 ```
-cp deposit/mon_document.pdf deposit/
+cp CNAM/11.pdf deposit/11.pdf
 ```
 
 Le fichier sera automatiquement traité et déplacé dans l’un des dossiers suivants :
